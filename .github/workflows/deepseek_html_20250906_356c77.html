@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filmora Web Editor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6e45e2;
+            --secondary-color: #88d3ce;
+            --dark-bg: #1a1a2e;
+            --medium-bg: #16213e;
+            --light-bg: #222851;
+            --text-color: #f0f0f0;
+            --accent-color: #ff7e6b;
+            --timeline-height: 160px;
+            --header-height: 60px;
+            --sidebar-width: 250px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-color);
+            overflow: hidden;
+            height: 100vh;
+            display: grid;
+            grid-template-rows: var(--header-height) 1fr var(--timeline-height);
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--medium-bg);
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+            font-size: 1.5rem;
+            color: var(--secondary-color);
+        }
+
+        .top-menu {
+            display: flex;
+            gap: 20px;
+        }
+
+        .top-menu a {
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .top-menu a:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        /* Main Content Area */
+        .main-container {
+            display: grid;
+            grid-template-columns: var(--sidebar-width) 1fr var(--sidebar-width);
+            overflow: hidden;
+        }
+
+        .sidebar {
+            background-color: var(--medium-bg);
+            padding: 20px;
+            overflow-y: auto;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-right {
+            border-right: none;
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-title {
+            margin-bottom: 15px;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--secondary-color);
+        }
+
+        .assets-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .asset-item {
+            background: var(--light-bg);
+            border-radius: 4px;
+            padding: 10px;
+            text-align: center;
+            cursor: grab;
+            transition: transform 0.2s;
+        }
+
+        .asset-item:hover {
+            transform: scale(1.05);
+        }
+
+        .asset-item i {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+            color: var(--secondary-color);
+        }
+
+        /* Preview Area */
+        .preview-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background-color: var(--light-bg);
+            position: relative;
+        }
+
+        .preview-placeholder {
+            width: 80%;
+            height: 70%;
+            background: linear-gradient(45deg, var(--medium-bg), var(--dark-bg));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed var(--secondary-color);
+            color: var(--secondary-color);
+            font-size: 1.2rem;
+        }
+
+        .playback-controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .playback-controls button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--medium-bg);
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .playback-controls button:hover {
+            background: var(--primary-color);
+        }
+
+        /* Timeline Area */
+        .timeline-container {
+            background-color: var(--medium-bg);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            overflow-x: auto;
+        }
+
+        .timeline {
+            height: 100%;
+            min-width: 800px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tracks {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .track {
+            display: flex;
+            align-items: center;
+            height: 40px;
+            background-color: var(--light-bg);
+            border-radius: 4px;
+            padding: 0 10px;
+        }
+
+        .track-label {
+            width: 80px;
+            font-size: 0.8rem;
+            color: var(--secondary-color);
+        }
+
+        .track-content {
+            flex: 1;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .clip {
+            position: absolute;
+            height: 26px;
+            top: 2px;
+            border-radius: 3px;
+            background-color: var(--primary-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            padding: 0 8px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            min-width: 40px;
+        }
+
+        .clip-audio {
+            background-color: var(--accent-color);
+        }
+
+        .clip-text {
+            background-color: #6aae6a;
+        }
+
+        .timeline-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: var(--medium-bg);
+            padding: 20px;
+            border-radius: 8px;
+            width: 400px;
+            max-width: 90%;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 200px 1fr 200px;
+            }
+            
+            .assets-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .main-container {
+                grid-template-columns: 60px 1fr;
+            }
+            
+            .sidebar-right {
+                display: none;
+            }
+            
+            .asset-item span {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with navigation -->
+    <header>
+        <div class="logo">
+            <i class="fas fa-film"></i>
+            <span>Filmora Web</span>
+        </div>
+        <nav class="top-menu">
+            <a href="#">File</a>
+            <a href="#">Edit</a>
+            <a href="#">View</a>
+            <a href="#">Export</a>
+            <a href="#">Help</a>
+        </nav>
+        <div class="user-actions">
+            <button class="btn btn-secondary">Import</button>
+            <button class="btn btn-primary">Export Project</button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <div class="main-container">
+        <!-- Left Sidebar -->
+        <div class="sidebar">
+            <h3 class="sidebar-title">Media Assets</h3>
+            <div class="assets-grid">
+                <div class="asset-item" draggable="true" onclick="showModal('importModal')">
+                    <i class="fas fa-video"></i>
+                    <span>Videos</span>
+                </div>
+                <div class="asset-item" draggable="true">
+                    <i class="fas fa-music"></i>
+                    <span>Audio</span>
+                </div>
+                <div class="asset-item" draggable="true">
+                    <i class="fas fa-image"></i>
+                    <span>Images</span>
+                </div>
+                <div class="asset-item" draggable="true">
+                    <i class="fas fa-text"></i>
+                    <span>Text</span>
+                </div>
+                <div class="asset-item" draggable="true">
+                    <i class="fas fa-tint"></i>
+                    <span>Effects</span>
+                </div>
+                <div class="asset-item" draggable="true">
+                    <i class="fas fa-sliders-h"></i>
+                    <span>Filters</span>
+                </div>
+            </div>
+
+            <h3 class="sidebar-title" style="margin-top: 20px;">Project Files</h3>
+            <div class="project-files">
+                <div class="file-item">
+                    <i class="fas fa-file-video"></i>
+                    <span>Intro.mp4</span>
+                </div>
+                <div class="file-item">
+                    <i class="fas fa-file-audio"></i>
+                    <span>Background.mp3</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Center Preview Area -->
+        <div class="preview-container">
+            <div class="preview-placeholder">
+                <i class="fas fa-play-circle" style="font-size: 3rem; margin-right: 10px;"></i>
+                Video Preview
+            </div>
+            <div class="playback-controls">
+                <button><i class="fas fa-backward"></i></button>
+                <button><i class="fas fa-play"></i></button>
+                <button><i class="fas fa-pause"></i></button>
+                <button><i class="fas fa-forward"></i></button>
+                <button><i class="fas fa-expand"></i></button>
+            </div>
+        </div>
+
+        <!-- Right Sidebar -->
+        <div class="sidebar sidebar-right">
+            <h3 class="sidebar-title">Properties</h3>
+            <div class="properties-panel">
+                <div class="property-group">
+                    <label>Opacity</label>
+                    <input type="range" min="0" max="100" value="100">
+                </div>
+                <div class="property-group">
+                    <label>Volume</label>
+                    <input type="range" min="0" max="100" value="80">
+                </div>
+                <div class="property-group">
+                    <label>Speed</label>
+                    <input type="range" min="50" max="200" value="100">
+                </div>
+            </div>
+
+            <h3 class="sidebar-title" style="margin-top: 20px;">Effects</h3>
+            <div class="effects-list">
+                <div class="effect-item">Fade In</div>
+                <div class="effect-item">Fade Out</div>
+                <div class="effect-item">Blur</div>
+                <div class="effect-item">Zoom</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline Area -->
+    <div class="timeline-container">
+        <div class="timeline">
+            <div class="tracks">
+                <div class="track">
+                    <div class="track-label">Video 1</div>
+                    <div class="track-content">
+                        <div class="clip" style="left: 20px; width: 120px;">Intro.mp4</div>
+                        <div class="clip" style="left: 160px; width: 100px;">Scene2.mp4</div>
+                    </div>
+                </div>
+                <div class="track">
+                    <div class="track-label">Video 2</div>
+                    <div class="track-content">
+                        <div class="clip" style="left: 90px; width: 80px;">Overlay.mp4</div>
+                    </div>
+                </div>
+                <div class="track">
+                    <div class="track-label">Audio</div>
+                    <div class="track-content">
+                        <div class="clip clip-audio" style="left: 10px; width: 250px;">Background.mp3</div>
+                    </div>
+                </div>
+                <div class="track">
+                    <div class="track-label">Text</div>
+                    <div class="track-content">
+                        <div class="clip clip-text" style="left: 50px; width: 70px;">Title</div>
+                    </div>
+                </div>
+            </div>
+            <div class="timeline-controls">
+                <button class="btn btn-secondary"><i class="fas fa-minus"></i> Zoom Out</button>
+                <button class="btn btn-secondary"><i class="fas fa-plus"></i> Zoom In</button>
+                <button class="btn btn-primary"><i class="fas fa-play"></i> Play Timeline</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal" id="importModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Import Media</h3>
+                <button class="close-modal" onclick="closeModal('importModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Select files to import into your project:</p>
+                <div style="border: 2px dashed #6e45e2; padding: 20px; text-align: center; margin: 15px 0; border-radius: 8px;">
+                    <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: #6e45e2;"></i>
+                    <p>Drag & drop files here or click to browse</p>
+                    <button class="btn btn-primary" style="margin-top: 10px;">Browse Files</button>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
+                    <button class="btn btn-secondary" onclick="closeModal('importModal')">Cancel</button>
+                    <button class="btn btn-primary" onclick="importFiles()">Import</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Modal functionality
+        function showModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function importFiles() {
+            alert('Files imported successfully!');
+            closeModal('importModal');
+        }
+
+        // Timeline dragging functionality
+        const clips = document.querySelectorAll('.clip');
+        let isDragging = false;
+        let startX, startLeft;
+
+        clips.forEach(clip => {
+            clip.addEventListener('mousedown', dragStart);
+            clip.addEventListener('touchstart', dragStart);
+        });
+
+        function dragStart(e) {
+            isDragging = true;
+            startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+            startLeft = parseInt(window.getComputedStyle(this).left);
+            
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('touchmove', drag);
+            document.addEventListener('mouseup', dragEnd);
+            document.addEventListener('touchend', dragEnd);
+            
+            e.preventDefault();
+        }
+
+        function drag(e) {
+            if (!isDragging) return;
+            
+            const currentX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+            const newLeft = startLeft + (currentX - startX);
+            
+            // Constrain to track boundaries
+            const track = this.parentElement;
+            const trackWidth = track.offsetWidth;
+            const clipWidth = this.offsetWidth;
+            
+            if (newLeft >= 0 && newLeft <= (trackWidth - clipWidth)) {
+                this.style.left = `${newLeft}px`;
+            }
+        }
+
+        function dragEnd() {
+            isDragging = false;
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('touchmove', drag);
+            document.removeEventListener('mouseup', dragEnd);
+            document.removeEventListener('touchend', dragEnd);
+        }
+
+        // Playback controls
+        const playButton = document.querySelector('.playback-controls button:nth-child(2)');
+        const pauseButton = document.querySelector('.playback-controls button:nth-child(3)');
+        const preview = document.querySelector('.preview-placeholder');
+
+        playButton.addEventListener('click', () => {
+            preview.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size: 3rem; margin-right: 10px;"></i> Playing...';
+            setTimeout(() => {
+                preview.innerHTML = '<i class="fas fa-play-circle" style="font-size: 3rem; margin-right: 10px;"></i> Video Preview';
+            }, 3000);
+        });
+
+        pauseButton.addEventListener('click', () => {
+            preview.innerHTML = '<i class="fas fa-pause-circle" style="font-size: 3rem; margin-right: 10px;"></i> Paused';
+        });
+
+        // Initialize with demo content
+        window.addEventListener('load', () => {
+            console.log('Filmora Web Editor loaded successfully!');
+        });
+
+        // Simulate API integrations
+        const mockAPIs = {
+            video: {
+                load: () => console.log('Loading video API...'),
+                process: () => console.log('Processing video...')
+            },
+            audio: {
+                load: () => console.log('Loading audio API...'),
+                process: () => console.log('Processing audio...')
+            },
+            export: {
+                init: () => console.log('Initializing export API...'),
+                render: () => console.log('Rendering video...')
+            },
+            storage: {
+                init: () => console.log('Initializing storage API...'),
+                save: () => console.log('Saving project...')
+            }
+        };
+
+        // Initialize all APIs
+        mockAPIs.video.load();
+        mockAPIs.audio.load();
+        mockAPIs.export.init();
+        mockAPIs.storage.init();
+    </script>
+</body>
+</html>
